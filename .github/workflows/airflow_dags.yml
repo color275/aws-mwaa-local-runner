@@ -1,8 +1,8 @@
-name: airflow-dags
+name: airflow_dags
 
 on:
   push:
-    branches: ["aws-mwaa-local-runner"]
+    branches: [main]
 
 jobs:
   build:
