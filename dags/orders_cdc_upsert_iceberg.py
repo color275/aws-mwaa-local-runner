@@ -40,7 +40,7 @@ dag = DAG(
     catchup=False
 )
 
-S3_URI = "s3://chiholee-datalake001/emr/script/"
+S3_URI = "s3://chiholee-datalake001/emr/code/"
 
 SPARK_STEPS = [
   {
@@ -48,7 +48,7 @@ SPARK_STEPS = [
       'ActionOnFailure': 'CANCEL_AND_WAIT',
       'HadoopJarStep': {
           'Jar': 'command-runner.jar',
-          'Args': ['aws', 's3', 'cp', '--recursive', S3_URI, '/home/hadoop/']
+          'Args': ['aws', 's3', 'cp', '--recursive', S3_URI, '/tmp/']
       }
   },
   {
@@ -57,7 +57,7 @@ SPARK_STEPS = [
       'HadoopJarStep': {
           'Jar': 'command-runner.jar',
           'Args': ['spark-submit',
-                   '/home/hadoop/orders_cdc_upsert_iceberg.py']
+                   '/tmp/iceberg_cdc.py']
       }
   }
 ]
@@ -65,7 +65,7 @@ SPARK_STEPS = [
 
 step1 = EmrAddStepsOperator(
     task_id='add_steps',
-    job_flow_id="j-OORY788FWZC1",
+    job_flow_id="j-1NWU5FXTVBF6E",
     aws_conn_id='aws_default',
     steps=SPARK_STEPS,
     dag=dag
@@ -73,7 +73,7 @@ step1 = EmrAddStepsOperator(
 
 step1_checker = EmrStepSensor(
     task_id='watch_step1',
-    job_flow_id="j-OORY788FWZC1",
+    job_flow_id="j-1NWU5FXTVBF6E",
     step_id="{{ task_instance.xcom_pull('add_steps', key='return_value')[0] }}",
     aws_conn_id='aws_default',
     dag=dag
